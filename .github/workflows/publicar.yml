@@ -1,0 +1,66 @@
+# Publica a gem no RubyGems.org quando uma tag v* é enviada (ex.: git tag v0.1.0 && git push origin v0.1.0).
+#
+# Usa trusted publishing (OIDC): nenhum token do RubyGems fica guardado no GitHub. Configuração única, antes da
+# primeira tag: em rubygems.org, entre com a conta que vai ser dona da gem (com MFA ativo) e abra
+# Settings > Trusted publishers > Create (um "pending trusted publisher", porque a gem ainda não existe), com:
+#   Gem name:          emissaoja
+#   Repository owner:  Easymovel
+#   Repository name:   emissaoja-ruby
+#   Workflow filename: publicar.yml
+#   Environment:       (em branco)
+# Na primeira publicação ele vira o trusted publisher da gem `emissaoja`. Se o repositório mudar de dono (por
+# exemplo para um org emissaoja), atualize o trusted publisher no RubyGems.
+name: Publicar no RubyGems
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    name: Testes (Ruby ${{ matrix.ruby }})
+    runs-on: ubuntu-24.04 # Rubies prontos do setup-ruby; a gem declara Ruby >= 3.0
+    strategy:
+      fail-fast: true
+      matrix:
+        ruby: ["3.0", "3.1", "3.2", "3.3", "3.4"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Conferir que a tag bate com a versão
+        run: |
+          versao=$(ruby -Ilib -e 'require "emissaoja/version"; print Emissaoja::VERSION')
+          echo "tag ${GITHUB_REF_NAME}, versão ${versao}"
+          if [ "${GITHUB_REF_NAME}" != "v${versao}" ]; then
+            echo "::error::A tag ${GITHUB_REF_NAME} não bate com a versão ${versao} de lib/emissaoja/version.rb"
+            exit 1
+          fi
+      - name: Testes
+        run: bundle exec rake test
+
+  publicar:
+    name: Construir e publicar
+    needs: testes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # token OIDC trocado por uma chave temporária do RubyGems
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+      - name: Construir a gem
+        run: gem build emissaoja.gemspec
+      - name: Credenciais do RubyGems (trusted publishing, sem token guardado)
+        uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
+      - name: Publicar
+        run: gem push "emissaoja-${GITHUB_REF_NAME#v}.gem"
