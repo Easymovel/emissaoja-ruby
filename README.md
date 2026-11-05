@@ -79,7 +79,7 @@ Empresas de exemplo do sandbox (qualquer senha, menos `errada`, que o portal sim
 | `33333333000191` | MEI sem notas anteriores |
 | `44444444000191` | Empresa bloqueada (não optante do Simples) |
 
-Tomadores de exemplo: CNPJ `12345678000195` e CPF `52998224725`. Valores com significado ao emitir: `13.13` sai **incerta** (`ej.emissoes.conferir(id)` confere e ela vira autorizada), `77.77` sai incerta e a conferência mostra que a nota não saiu, `99.99` é **recusada** pelo fisco simulado. O sandbox é reiniciado a cada publicação do emissaoja: a empresa continua conectada, mas as notas emitidas antes somem.
+Tomadores de exemplo: CNPJ `12345678000195` e CPF `52998224725`. Valores com significado ao emitir: `13.13` sai **incerta** (`ej.emissoes.conferir(id)` confere e ela vira autorizada), `77.77` sai incerta e a conferência mostra que a nota não saiu, `66.66` é **recusada** pelo fisco simulado e `99.99` é bloqueada já na prévia (`422 nota_bloqueada`). A empresa conectada e as notas do sandbox continuam lá quando o emissaoja publica uma versão nova.
 
 ## Em produção
 
