@@ -20,6 +20,21 @@ module Emissaoja
       "DELETE" => Net::HTTP::Delete
     }.freeze
 
+    # POST/PUT/PATCH sem corpo: o Net::HTTP manda corpo vazio e, sem Content-Type, inventa
+    # application/x-www-form-urlencoded (com aviso). A API recusaria esse tipo (415), então estas
+    # subclasses mandam o corpo vazio com Content-Length 0 e nenhum Content-Type.
+    module SemTipoPadrao
+      private
+
+      def supply_default_content_type; end
+    end
+
+    SEM_CORPO = {
+      "POST" => Class.new(Net::HTTP::Post) { include SemTipoPadrao },
+      "PUT" => Class.new(Net::HTTP::Put) { include SemTipoPadrao },
+      "PATCH" => Class.new(Net::HTTP::Patch) { include SemTipoPadrao }
+    }.freeze
+
     # Viram code "tempo_esgotado". Net::OpenTimeout, Net::ReadTimeout e Net::WriteTimeout herdam de Timeout::Error.
     ERROS_DE_TEMPO = [Timeout::Error, Errno::ETIMEDOUT, (IO::TimeoutError if defined?(IO::TimeoutError))].compact.freeze
 
@@ -56,7 +71,9 @@ module Emissaoja
     private
 
     def montar_requisicao(metodo, uri, cabecalhos, corpo)
-      classe = METODOS.fetch(metodo.to_s.upcase) { raise ArgumentError, "método HTTP não suportado: #{metodo}" }
+      nome = metodo.to_s.upcase
+      classe = METODOS.fetch(nome) { raise ArgumentError, "método HTTP não suportado: #{metodo}" }
+      classe = SEM_CORPO.fetch(nome, classe) if corpo.nil?
       requisicao = classe.new(uri.request_uri)
       cabecalhos.each { |nome, valor| requisicao[nome] = valor }
       if corpo
