@@ -60,7 +60,15 @@ jobs:
           ruby-version: "3.3"
       - name: Construir a gem
         run: gem build emissaoja.gemspec
-      - name: Credenciais do RubyGems (trusted publishing, sem token guardado)
-        uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
+      # Troca o token OIDC do GitHub por uma chave temporária do RubyGems, informando o dono da gem
+      # (owner = id da conta no rubygems.org), exigido na primeira publicação por pending trusted publisher.
+      - name: Credenciais do RubyGems (trusted publishing)
+        run: |
+          JWT=$(curl -fsS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=rubygems.org" | jq -r .value)
+          RESP=$(curl -fsS -X POST https://rubygems.org/api/v1/oidc/trusted_publisher/exchange_token -H 'Content-Type: application/json' -H 'Accept: application/json' -d "{\"jwt\":\"$JWT\",\"owner\":\"255673\"}")
+          KEY=$(echo "$RESP" | jq -r .rubygems_api_key)
+          [ -n "$KEY" ] && [ "$KEY" != null ] || { echo "troca de token falhou"; exit 1; }
+          echo "::add-mask::$KEY"
+          echo "GEM_HOST_API_KEY=$KEY" >> "$GITHUB_ENV"
       - name: Publicar
         run: gem push "emissaoja-${GITHUB_REF_NAME#v}.gem"
