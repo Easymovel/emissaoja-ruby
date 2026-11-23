@@ -1,6 +1,6 @@
 # emissaoja: API de NFS-e nacional para Ruby
 
-Gem oficial em Ruby da [API do emissaoja](https://emissaoja.com.br/docs/): emita **NFS-e (nota fiscal de serviço eletrônica) no Emissor Nacional** a partir do seu sistema Ruby ou Rails, com o CNPJ e a senha do portal, **sem certificado digital**, para MEI e empresas do Simples Nacional. Conecte a empresa, cadastre tomadores e serviços, emita a nota, acompanhe o pedido e baixe o PDF (DANFSe) e o XML.
+Gem oficial em Ruby da [API do emissaoja](https://emissaoja.com.br/docs/?origem=lib-ruby&utm_source=rubygems&utm_medium=readme&utm_campaign=docs): emita **NFS-e (nota fiscal de serviço eletrônica) no Emissor Nacional** a partir do seu sistema Ruby ou Rails, com o CNPJ e a senha do portal, **sem certificado digital**, para MEI e empresas do Simples Nacional. Conecte a empresa, cadastre tomadores e serviços, emita a nota, acompanhe o pedido e baixe o PDF (DANFSe) e o XML.
 
 - **Sem dependências**: só `Net::HTTP` e `JSON` da biblioteca padrão, Ruby 3.0 ou mais novo.
 - **Idempotência embutida**: `emitir` exige uma referência sua por nota e a envia como `Idempotency-Key`; repetir a chamada devolve o mesmo pedido, sem emitir de novo.
@@ -22,7 +22,7 @@ Ou, fora do Bundler:
 gem install emissaoja
 ```
 
-Para usar a API, crie a conta grátis em [emissaoja.com.br](https://emissaoja.com.br/?origem=lib-ruby): entre no [app](https://emissaoja.com.br/app) com a conta Google, aceite os termos e crie a chave em **Conta → API** (ela aparece uma vez e começa com `ej_live_`). Depois, conecte a empresa com o CNPJ e a senha do Emissor Nacional (`ej.empresa.conectar`).
+Para usar a API, crie a conta grátis em [emissaoja.com.br](https://emissaoja.com.br/?origem=lib-ruby&utm_source=rubygems&utm_medium=readme&utm_campaign=home): entre no [app](https://emissaoja.com.br/app?origem=lib-ruby&utm_source=rubygems&utm_medium=readme&utm_campaign=app) com a conta Google, aceite os termos e crie a chave em **Conta → API** (ela aparece uma vez e começa com `ej_live_`). Depois, conecte a empresa com o CNPJ e a senha do Emissor Nacional (`ej.empresa.conectar`).
 
 ## Teste no sandbox em 2 minutos
 
@@ -101,7 +101,7 @@ puts tentativa["proximo_passo"] # "configurando" ou "pronto"; ou "corrigir_senha
 
 ## Recursos
 
-Todas as respostas são `Hash` com chaves `String`: o JSON da API, em `snake_case`. A referência completa dos campos está na [documentação](https://emissaoja.com.br/docs/) e no [OpenAPI](https://emissaoja.com.br/v1/openapi.json).
+Todas as respostas são `Hash` com chaves `String`: o JSON da API, em `snake_case`. A referência completa dos campos está na [documentação](https://emissaoja.com.br/docs/?origem=lib-ruby&utm_source=rubygems&utm_medium=readme&utm_campaign=docs) e no [OpenAPI](https://emissaoja.com.br/v1/openapi.json).
 
 ### Empresa
 
@@ -240,10 +240,10 @@ end
 | `chave_invalida` | 401, ou 0 sem chave | Confira a chave ou a variável `EMISSAOJA_KEY`: `ej_live_` em produção, `ej_test_` no sandbox |
 | `validation_error`, `valor_invalido`, `tomador_obrigatorio`, `cnpj_invalido` | 400 | Corrija o campo indicado na mensagem (e em `e.extras["details"]`, quando vier) |
 | `chave_idempotencia_invalida` | 0 (conferida aqui) ou 400 | Use uma referência de 8 a 64 caracteres: letras, números, `_` e `-` |
-| `limite_notas` | 402 | O limite do plano no mês acabou; veja os [planos](https://emissaoja.com.br/#precos) |
+| `limite_notas` | 402 | O limite do plano no mês acabou; veja os [planos](https://emissaoja.com.br/?origem=lib-ruby&utm_source=rubygems&utm_medium=readme&utm_campaign=precos#precos) |
 | `tomador_nao_encontrado`, `servico_nao_encontrado`, `nota_nao_encontrada`, `pedido_nao_encontrado` | 404 | Confira o id (e o tipo `pj`/`pf` ou a origem `local`/`importada`) |
 | `sem_empresa` | 409 | Conecte a empresa com `ej.empresa.conectar` |
-| `aceite_pendente` | 409 | Aceite os termos no [app](https://emissaoja.com.br/app) |
+| `aceite_pendente` | 409 | Aceite os termos no [app](https://emissaoja.com.br/app?origem=lib-ruby&utm_source=rubygems&utm_medium=readme&utm_campaign=app) |
 | `possivel_duplicada`, `emissao_repetida_recente` | 409 | Nota igual recente: veja a seção abaixo |
 | `chave_idempotencia_conflito` | 409 | A referência já foi usada numa nota com outros dados (`e.extras["pedido_id"]` é o pedido original): para outra nota, use outra referência |
 | `incerta_pendente` | 409 | Há uma nota igual incerta (`e.extras["pedido_id"]`): confira com `ej.emissoes.conferir` antes de emitir de novo |
@@ -357,7 +357,7 @@ O transporte recebe `(metodo, url, cabecalhos, corpo, timeout)` e devolve `[stat
 ## Limites
 
 - 60 chamadas por minuto por chave; emissões, 10 por minuto; buscas e catálogo, 120 por minuto; consulta de CNPJ, 30 por minuto. Acima disso, `429 rate_limited`.
-- Plano Grátis: 1 nota por mês. A nota conta quando o Emissor Nacional aceita o pedido; recusada não conta. Planos em [emissaoja.com.br/#precos](https://emissaoja.com.br/#precos).
+- Plano Grátis: 1 nota por mês. A nota conta quando o Emissor Nacional aceita o pedido; recusada não conta. Planos em [emissaoja.com.br/#precos](https://emissaoja.com.br/?origem=lib-ruby&utm_source=rubygems&utm_medium=readme&utm_campaign=precos#precos).
 - Uma conta tem uma empresa. Para várias empresas, uma conta e uma chave por empresa.
 
 ## Perguntas frequentes
@@ -368,13 +368,13 @@ O transporte recebe `(metodo, url, cabecalhos, corpo, timeout)` e devolve `[stat
 
 **Tem ambiente de testes?** Sim: o sandbox (`Emissaoja::BASE_SANDBOX`), com o Emissor Nacional simulado, empresas e tomadores de exemplo e chaves `ej_test_`. Nada vai ao fisco e nada é cobrado.
 
-**Quanto custa?** A gem é gratuita (licença MIT). A API tem o plano Grátis, com 1 nota por mês, e planos pagos em [emissaoja.com.br/#precos](https://emissaoja.com.br/#precos). O sandbox não tem custo.
+**Quanto custa?** A gem é gratuita (licença MIT). A API tem o plano Grátis, com 1 nota por mês, e planos pagos em [emissaoja.com.br/#precos](https://emissaoja.com.br/?origem=lib-ruby&utm_source=rubygems&utm_medium=readme&utm_campaign=precos#precos). O sandbox não tem custo.
 
 **Tem webhook?** Ainda não. Acompanhe o pedido com `ej.notas.aguardar`, que consulta `GET /v1/emissoes/{id}` no ritmo de `proxima_consulta_ms`.
 
 ## Links
 
-- Documentação: [emissaoja.com.br/docs](https://emissaoja.com.br/docs/) (também em Markdown: [docs.md](https://emissaoja.com.br/docs.md))
+- Documentação: [emissaoja.com.br/docs](https://emissaoja.com.br/docs/?origem=lib-ruby&utm_source=rubygems&utm_medium=readme&utm_campaign=docs) (também em Markdown: [docs.md](https://emissaoja.com.br/docs.md))
 - OpenAPI 3.1: [emissaoja.com.br/v1/openapi.json](https://emissaoja.com.br/v1/openapi.json)
 - Para IAs: [emissaoja.com.br/llms.txt](https://emissaoja.com.br/llms.txt)
 - MCP (emitir pelo seu assistente de IA): `https://emissaoja.com.br/mcp`
@@ -398,7 +398,7 @@ Bibliotecas oficiais em outras linguagens:
 
 ## In English
 
-**emissaoja** is a Brazilian NFS-e (service invoice) API, and this is its official Ruby gem. It issues invoices through the national Emissor Nacional using the company's CNPJ and portal password, with no digital certificate, for MEI and Simples Nacional companies. It has no runtime dependencies (Net::HTTP and JSON from the standard library), runs on Ruby 3.0+ and Rails, sends an idempotency key with every invoice and downloads the PDF and XML. Try it for free in the sandbox at [sandbox.emissaoja.com.br](https://sandbox.emissaoja.com.br); the documentation (in Portuguese) is at [emissaoja.com.br/docs](https://emissaoja.com.br/docs/).
+**emissaoja** is a Brazilian NFS-e (service invoice) API, and this is its official Ruby gem. It issues invoices through the national Emissor Nacional using the company's CNPJ and portal password, with no digital certificate, for MEI and Simples Nacional companies. It has no runtime dependencies (Net::HTTP and JSON from the standard library), runs on Ruby 3.0+ and Rails, sends an idempotency key with every invoice and downloads the PDF and XML. Try it for free in the sandbox at [sandbox.emissaoja.com.br](https://sandbox.emissaoja.com.br); the documentation (in Portuguese) is at [emissaoja.com.br/docs](https://emissaoja.com.br/docs/?origem=lib-ruby&utm_source=rubygems&utm_medium=readme&utm_campaign=docs).
 
 ---
 

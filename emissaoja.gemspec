@@ -19,13 +19,13 @@ Gem::Specification.new do |spec|
     Official Ruby client for the emissaoja API: issue Brazilian NFS-e service invoices through the national
     Emissor Nacional, with no digital certificate.
   DESCRICAO
-  spec.homepage = "https://emissaoja.com.br/docs/"
+  spec.homepage = "https://emissaoja.com.br/docs/?origem=lib-ruby&utm_source=rubygems&utm_medium=pacote&utm_campaign=docs"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0"
 
   spec.metadata = {
-    "homepage_uri" => "https://emissaoja.com.br/docs/",
-    "documentation_uri" => "https://emissaoja.com.br/docs/",
+    "homepage_uri" => "https://emissaoja.com.br/docs/?origem=lib-ruby&utm_source=rubygems&utm_medium=pacote&utm_campaign=docs",
+    "documentation_uri" => "https://emissaoja.com.br/docs/?origem=lib-ruby&utm_source=rubygems&utm_medium=pacote&utm_campaign=docs",
     "source_code_uri" => "https://github.com/Easymovel/emissaoja-ruby",
     "changelog_uri" => "https://github.com/Easymovel/emissaoja-ruby/blob/main/CHANGELOG.md",
     "bug_tracker_uri" => "https://github.com/Easymovel/emissaoja-ruby/issues",
